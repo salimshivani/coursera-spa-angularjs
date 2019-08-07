@@ -7,11 +7,28 @@
     .controller('AlreadyBoughtController', AlreadyBoughtController)
     .service('ShoppingListCheckOffService', ShoppingListCheckOffService);
   
-  ToBuyController.$inject = ['ShoppingListCheckOffService'];
-  function ToBuyController() {
+  ToBuyController.$injector = ['ShoppingListCheckOffService'];
+  function ToBuyController(ShoppingListCheckOffService) {
     var buyList = this;
     
-    buyList.toBuyItems = [
+    buyList.items = ShoppingListCheckOffService.getToBuyItems();
+    
+    buyList.bought = function (itemIndex) {
+      ShoppingListCheckOffService.itemBought(itemIndex);
+    };
+  }
+  
+  AlreadyBoughtController.$injector = ['ShoppingListCheckOffService'];
+  function AlreadyBoughtController(ShoppingListCheckOffService) {
+    var boughtList = this;
+    
+    boughtList.items = ShoppingListCheckOffService.getBoughtItems();
+  }
+  
+  function ShoppingListCheckOffService() {
+    var checkOffService = this;
+    
+    checkOffService.toBuyItems = [
       {
         name: 'Cookies',
         quantity: '10 packs'
@@ -33,16 +50,27 @@
         quantity: '2 packs'
       }
     ];
+    
+    checkOffService.boughtItems = [];
+    
+    checkOffService.getToBuyItems = function () {
+      return checkOffService.toBuyItems;
+    };
+    
+    checkOffService.itemBought = function (index) {
+      var item = checkOffService.toBuyItems[index];
+      checkOffService.boughtItems.push(item);
+      
+      checkOffService.removeToBuyItem(index);
+    };
+    
+    checkOffService.getBoughtItems = function () {
+      return checkOffService.boughtItems;
+    };
+    
+    checkOffService.removeToBuyItem = function (index) {
+      checkOffService.toBuyItems.splice(index, 1);
+    };
   }
   
-  AlreadyBoughtController.$inject = ['ShoppingListCheckOffService'];
-  function AlreadyBoughtController() {
-    var boughtList = this;
-    
-    boughtList.boughtItems = [];
-  }
-  
-  function ShoppingListCheckOffService() {
-    
-  }
 })();
